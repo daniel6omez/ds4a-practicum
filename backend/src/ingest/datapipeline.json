@@ -1,0 +1,2 @@
+// Add your data pipeline spec. This is dependant on your tool. For AWS CloudFormation it is a set of JSON files or YAML files.
+{}

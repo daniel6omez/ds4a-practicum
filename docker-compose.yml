@@ -1,0 +1,29 @@
+version: "3.3"
+
+services:
+  jupyter:
+    container_name: jupyter
+    build: ./backend
+    image: jupyter/scipy-notebook:ds4a
+    environment:
+      - NB_USER=ds4a
+      - NB_UID=501
+      - NB_GID=20
+      - CHOWN_HOME=yes
+      - GRANT_SUDO=yes
+    user: root
+    ports:
+      - "6888:8888"
+    restart: always
+    working_dir: /home/ds4a
+    volumes:
+      - ./backend/:/home/ds4a/work
+  # dash:
+  #   container_name: dash
+  #   build: ./frontend
+  #   image: dash:ds4a
+  #   ports:
+  #     - "8080:80"
+  #   restart: always
+  #   volumes:
+  #     - ./backend/:/app
