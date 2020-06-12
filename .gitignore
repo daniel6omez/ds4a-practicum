@@ -164,3 +164,4 @@ pip-selfcheck.json
 
 # End of https://www.gitignore.io/api/react,python,jupyternotebooks,visualstudiocode
 
+backend/samples/raw/accidentalidad.csv
