@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
 
     "python.pythonPath": "D:\\Users\\andresp\\Anaconda3\\python.exe"
 
+=======
+    "python.pythonPath": ".venv/bin/python"
+>>>>>>> 6813c234c6cc57c3704dcd232f9fae788d646369
 }
