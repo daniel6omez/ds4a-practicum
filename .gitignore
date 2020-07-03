@@ -34,6 +34,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+!backend/src/RTAM/lib/
 lib64/
 parts/
 sdist/
