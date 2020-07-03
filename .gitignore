@@ -165,4 +165,8 @@ pip-selfcheck.json
 # End of https://www.gitignore.io/api/react,python,jupyternotebooks,visualstudiocode
 
 backend/samples/raw/accidentalidad.csv
+<<<<<<< HEAD
 accidents_cleanV2.csv
+=======
+.vscode/settings.json
+>>>>>>> 6406b83dd2117975438a2fc8229c3e3218588030
