@@ -15,13 +15,21 @@ import pandas as pd
 #Recall app
 from app import app
 
+from sqlalchemy import create_engine
+ 
+DB_USERNAME = 'postgres@psql-ds4a-prod'
+DB_PASSWORD = 'FliFUDlbO72cq2h9AaFF'
+HOST = 'psql-ds4a-prod.postgres.database.azure.com'
 
+#engine = create_engine('sqlite:///crime.db')
+engine=create_engine(f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{HOST}/ds4a', max_overflow=20)
+df = pd.read_sql("select * from processed.accidents", engine.connect(), parse_dates=('Date'))
 
 
 #############################
 # Load map data
 #############################
-df = pd.read_csv("Data/accidents_cleanV2.csv", parse_dates=['fecha_incidente'])
+#df = pd.read_csv("Data/accidents_v3.csv", parse_dates=['Date'])
 
 with open('Data/Barrios.geojson', encoding='utf8') as geo:
     geojson = json.loads(geo.read())
@@ -36,16 +44,16 @@ for i, f in enumerate(geojson["features"]):
 def update_map(start_date= None, end_date= None):
     dff=df
     if start_date != None and end_date != None:
-        dff=df[(df.fecha_incidente >= start_date) & (df.fecha_incidente <= end_date)]
+        dff=df[(df.Date >= start_date) & (df.Date <= end_date)]
         
-    accidents_cn = dff.groupby(["cbml", "barrio"])["radicado"].count().reset_index(name="accidents_count")
+    accidents_cn = dff.groupby(["Cbml",	"Borough"])["Radicado"].count().reset_index(name="accidents_count")
     figure6 = px.choropleth_mapbox(accidents_cn,                         #Data
-        locations='cbml',                         #Column containing the identifiers used in the GeoJSON file 
+        locations='Cbml',                         #Column containing the identifiers used in the GeoJSON file 
         color='accidents_count',                            #Column giving the color intensity of the region
         geojson=geojson,                      #The GeoJSON file
         #featureidkey = "properties.CODIGO", 
-        hover_name="barrio",
-        hover_data={'cbml':False, 'accidents_count':True },#'sepal_length':':.2f',}
+        hover_name="Borough",
+        hover_data={'Cbml':False, 'accidents_count':True },#'sepal_length':':.2f',}
         zoom=10.5,                                   #Zoom
         mapbox_style="carto-positron",            #Mapbox style, for different maps you need a Mapbox account and a token
         center={"lat": 6.2653382, "lon": -75.6035539}, #Center 0
