@@ -72,7 +72,7 @@ app.layout =html.Div(
 # SCATTER & LINE PLOT : Add sidebar interaction here
 #############################################################
 @app.callback(
-    [Output("MonthDayHeat", "figure")],
+    [Output("MonthDayHeat", "figure"), Output("DayHourHeat", "figure"),Output("LineGraph", "figure")],
     #[Output("MonthDayHeat", "figure"),Output("Scatter","figure"), Output("Treemap",'figure')],
     [
         #Input("state_dropdown", "value"),
@@ -82,22 +82,10 @@ app.layout =html.Div(
 )
 def update_heat_maps(start_date, end_date):
     MonthDayHeat = heat_maps.update_month_day_heat(start_date, end_date)
-    
-    #ddf=df[df['State_abbr'].isin(state_dropdown)]
-    #ddf = ddf[(ddf['Order Date'] >= start_date) & (ddf['Order Date'] < end_date)] 
-    
-    #ddf1=ddf.groupby(['Order_Month', 'State']).sum()
-    #ddf1=ddf1.reset_index()
-        
-    #Line_fig=px.line(ddf1,x="Order_Month",y="Sales", color="State")
-    #Line_fig.update_layout(title='Montly Sales in selected states',paper_bgcolor="#F8F9F9")
-    
-    #Scatter_fig=px.scatter(ddf, x="Sales", y="Profit", color="Category", hover_data=['State_abbr','Sub-Category','Order ID','Product Name'])  
-    #Scatter_fig.update_layout(title='Sales vs. Profit in selected states',paper_bgcolor="#F8F9F9")
-    
-    #Treemap_fig=px.treemap(ddf, path=["Category","Sub-Category","State"],values="Sales",color_discrete_sequence=px.colors.qualitative.Dark24)
+    DayHourHeat = heat_maps.update_day_hour_heat(start_date, end_date)
+    LineGraph = heat_maps.update_line_graph(start_date, end_date)
 
-    return [MonthDayHeat]
+    return [MonthDayHeat,DayHourHeat,LineGraph]
 
 
 

@@ -15,21 +15,31 @@ import pandas as pd
 #Recall app
 from app import app
 
-df = pd.read_csv("Data/accidents_cleanV2.csv", parse_dates=['fecha_incidente'])
+from sqlalchemy import create_engine
+ 
+DB_USERNAME = 'postgres@psql-ds4a-prod'
+DB_PASSWORD = 'FliFUDlbO72cq2h9AaFF'
+HOST = 'psql-ds4a-prod.postgres.database.azure.com'
+
+#engine = create_engine('sqlite:///crime.db')
+engine=create_engine(f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{HOST}/ds4a', max_overflow=20)
+df = pd.read_sql("select * from processed.accidents", engine.connect(), parse_dates=('Date'))
+
+#df = pd.read_csv("Data/accidents_v3.csv", parse_dates=['Date'])
 
 def update_month_day_heat(start_date= None, end_date= None):
     dff=df
     if start_date != None and end_date != None:
-        dff=df[(df.fecha_incidente >= start_date) & (df.fecha_incidente <= end_date)]
+        dff=df[(df.Date >= start_date) & (df.Date <= end_date)]
         
-    pivot_day_month = dff.pivot_table(index='dia_nombre',columns='mes', values="radicado", aggfunc=lambda x: x.count())
+    pivot_day_month = dff.pivot_table(index='WeekDay',columns='Month', values="Radicado", aggfunc=lambda x: x.count())
     pivot_day_month = pivot_day_month.reset_index()
-    pivot_day_month["dia_nombre"] = pivot_day_month["dia_nombre"].str.strip()
+    pivot_day_month["WeekDay"] = pivot_day_month["WeekDay"].str.strip()
+
+    pivot_day_month['WeekDay'] = pivot_day_month['WeekDay'].map({'Monday':'0Monday', 'Tuesday':'1Tuesday', 'Wednesday':'2Wednesday', 'Thursday':'3Thursday', 'Friday':'4Friday', 'Saturday':'5Saturday', 'Sunday':'6Sunday'})
     
-    pivot_day_month['dia_nombre'] = pivot_day_month['dia_nombre'].map({'LUNES':'0LUNES', 'MARTES':'1MARTES', 'MIÉRCOLES':'2MIÉRCOLES', 'JUEVES':'3JUEVES', 'VIERNES':'4VIERNES', 'SÁBADO':'5SÁBADO', 'DOMINGO':'6DOMINGO'})
-    
-    pivot_day_month.sort_values(by="dia_nombre", inplace=True)
-    pivot_day_month.set_index("dia_nombre", inplace=True)
+    pivot_day_month.sort_values(by="WeekDay", inplace=True)
+    pivot_day_month.set_index("WeekDay", inplace=True)
     pivot_day_month
     figure4 = px.imshow(pivot_day_month,
                 color_continuous_scale='RdBu_r',
@@ -40,9 +50,45 @@ def update_month_day_heat(start_date= None, end_date= None):
     figure4.update_xaxes(side="top")
     figure4.update_layout(
     #title='GitHub commits per day',
-    yaxis_nticks=24, width=1200)
+    yaxis_nticks=24)
     
     return figure4
+
+#######################################
+
+def update_day_hour_heat(start_date= None, end_date= None):
+    dff=df
+    if start_date != None and end_date != None:
+        dff=df[(df.Date >= start_date) & (df.Date <= end_date)]
+        
+    pivot_hours_day = dff.pivot_table(index='Hour',columns='WeekDay', values="Radicado", aggfunc=lambda x: x.count())
+    map_list = {'Monday':'0Monday', 'Tuesday':'1Tuesday', 'Wednesday':'2Wednesday', 'Thursday':'3Thursday', 'Friday':'4Friday', 'Saturday':'5Saturday', 'Sunday':'6Sunday'}
+    pivot_hours_day.columns = [map_list[c.strip()] for c in pivot_hours_day.columns]
+    pivot_hours_day.sort_index(axis=1, inplace=True)
+
+    figure5 = px.imshow(pivot_hours_day,
+                color_continuous_scale='RdBu_r',#'RdBu_r',
+                labels=dict(x="Day", y="Hour", color="Accidents"),#"Productivity"),
+                x=pivot_hours_day.columns,
+                y=pivot_hours_day.index
+               )
+    figure5.update_xaxes(side="top")
+    figure5.update_layout(
+    #title='GitHub commits per day',
+    yaxis_nticks=24)
+    
+    return figure5
+
+def update_line_graph(start_date= None, end_date= None):
+    dff=df
+    if start_date != None and end_date != None:
+        dff=df[(df.Date >= start_date) & (df.Date <= end_date)]
+        
+    dff = dff.set_index("Date")
+    df1 = dff.groupby([pd.Grouper(freq="M")])['Radicado'].count().reset_index()
+    figure1 = px.line(df1, x="Date", y="Radicado")
+    return figure1
+
 
 ##############################################################
 # SCATTER PLOT
@@ -78,17 +124,17 @@ heatmaps=html.Div([
     dbc.Row([
         dbc.Col(
             dcc.Graph(figure=update_month_day_heat(), id='MonthDayHeat')
-        )#,
-        #dbc.Col(
-         #   dcc.Graph(figure=Scatter_fig, id='Scatter')
-          #  )
+        ),
+        dbc.Col(
+            dcc.Graph(figure=update_day_hour_heat(), id='DayHourHeat')
+            )
         
-    ])#,
-   # dbc.Row([
-    #    dbc.Col(
-     #   dcc.Graph(figure=Treemap_fig,id='Treemap')
-      #  )
-   # ])
+    ]),
+    dbc.Row([
+        dbc.Col(
+            dcc.Graph(figure=update_line_graph(),id='LineGraph')
+        )
+    ])
 	],className="ds4a-body")
 
 
