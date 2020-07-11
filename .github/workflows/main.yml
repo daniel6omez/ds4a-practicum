@@ -18,7 +18,7 @@ jobs:
       
     - name: Build backend image
       working-directory: ./backend/src
-      run: docker build -t ${{ secrets.CONTAINER_REGISTRY_URL }}/ds4a-rtam:latest . -f Dockerfile.RTAM
+      run: docker build -t ${{ secrets.CONTAINER_REGISTRY_URL }}/ds4a-rtam:latest . -f Dockerfile.rtam
       
     - name: Publish backend image
       working-directory: ./backend/src
