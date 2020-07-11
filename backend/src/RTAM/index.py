@@ -19,9 +19,7 @@ import pandas as pd
 import json
 
 #Recall app
-from app import app
-
-
+from app import app, server
 
 ###########################################################
 #
@@ -30,7 +28,7 @@ from app import app
 ###########################################################
 
 #LOAD THE DIFFERENT FILES
-from lib import title, sidebar, md_map, heat_maps#, stats
+from modules import title, sidebar, md_map, heat_maps#, stats
 
 #PLACE THE COMPONENTS IN THE LAYOUT
 app.layout =html.Div(
@@ -133,19 +131,9 @@ def click_saver(clickData,state):
     
     return state
 
-
-
-
-
-    
-
-
-
-
-
-                                                 
-           
-        
-
 if __name__ == "__main__":
-    app.run_server(host='localhost',port='8050',debug=True,use_reloader=True)
+    # http_server = WSGIServer(('', 8080), app.server)
+    # http_server.serve_forever()
+    app.run_server()
+    #use the bottom option when debbuging
+    # app.run_server(host='localhost',port='8050',debug=True,use_reloader=True)
