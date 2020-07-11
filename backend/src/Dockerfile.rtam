@@ -10,6 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
+COPY ./rtam/ /app
 
 # Install pip requirements
 COPY ./rtam_dash/requirements.txt .
