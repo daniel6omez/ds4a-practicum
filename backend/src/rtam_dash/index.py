@@ -28,7 +28,7 @@ from app import app, server
 ###########################################################
 
 #LOAD THE DIFFERENT FILES
-from modules import title, sidebar, md_map, heat_maps#, stats
+from modules import sidebar, md_map, heat_maps#, stats
 
 #PLACE THE COMPONENTS IN THE LAYOUT
 app.layout =html.Div(
@@ -36,7 +36,7 @@ app.layout =html.Div(
       md_map.map,
       heat_maps.heatmaps,
       #stats.stats,
-      title.title,
+      #title.title,
       sidebar.sidebar,
     ],
     className="ds4a-app", #You can also add your own css files by locating them into the assets folder
