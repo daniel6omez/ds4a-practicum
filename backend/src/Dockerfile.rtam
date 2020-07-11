@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 # Install pip requirements
-ADD rtam/requirements.txt .
+ADD ./rtam/requirements.txt .
 RUN python -m pip install -r requirements.txt
 
 
