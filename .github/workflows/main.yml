@@ -1,0 +1,32 @@
+name: deploy
+
+on:
+    push:
+      branches:
+        - master
+
+jobs:
+  deploy_dev:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Azure docker login
+      run: docker login ${{ secrets.CONTAINER_REGISTRY_URL }} -u ${{ secrets.CONTAINER_REGISTRY_USR }} -p ${{ secrets.CONTAINER_REGISTRY_PWD }}
+      
+    - name: Build backend image
+      working-directory: ./backend/src
+      run: docker build -t ${{ secrets.CONTAINER_REGISTRY_URL }}/ds4a-rtam:latest . -f Dockerfile.rtam
+      
+    - name: Publish backend image
+      working-directory: ./backend/src
+      run: docker push ${{ secrets.CONTAINER_REGISTRY_URL }}/ds4a-rtam:latest
+
+    - name: Call webhook
+      uses: joelwmale/webhook-action@master
+      env:
+        WEBHOOK_URL: ${{ secrets.AZURE_DEPLOY_WEBHOOK }}
+        data: "Deploying from github actions!"
+    
