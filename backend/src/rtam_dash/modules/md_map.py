@@ -13,10 +13,6 @@ import numpy as np
 import pandas as pd
 from db.data import df
 
-
-#############################
-# Load map data
-#############################
 from urllib.request import urlopen
 import json
 with urlopen('https://ds4a.blob.core.windows.net/ds4a/Barrios.geojson') as response:
@@ -28,7 +24,7 @@ for i, f in enumerate(geojson["features"]):
 
 def update_map(dff = df):
     accidents_cn = dff.groupby(["Cbml",	"Borough"])["Radicado"].count().reset_index(name="accidents_count")
-    figure6 = px.choropleth_mapbox(accidents_cn,                         #Data
+    fig = px.choropleth_mapbox(accidents_cn,                         #Data
         locations='Cbml',                         #Column containing the identifiers used in the GeoJSON file 
         color='accidents_count',                            #Column giving the color intensity of the region
         geojson=geojson,                      #The GeoJSON file
@@ -43,14 +39,5 @@ def update_map(dff = df):
         opacity=0.5,                              #Opacity of the map
       )
     
-    figure6.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, width=1000)
-    return figure6
-
-##############################
-#Map Layout
-##############################
-map=html.Div([
- #Place the main graph component here:
-  dcc.Graph(figure=update_map(), id='md_map',style={'height':'50vh'})
-])
-    
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    return fig
