@@ -1,12 +1,7 @@
 /*This document contains the styles that use the app. You can change these as you wish.*/
 
-.ds4a-app {
-    background-color: #F8F9F9
-}
-
 .ds4a-body {
-    margin-left: 18rem;
+    margin-left: 2rem;
     margin-right: 2rem;
     padding: 2rem 1rem;
-    background-color: #F8F9F9;
 }
