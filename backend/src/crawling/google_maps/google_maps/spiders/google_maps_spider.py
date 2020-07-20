@@ -8,8 +8,8 @@ class GoogleMapsSpiderSpider(scrapy.Spider):
     name = 'google_maps_spider'
 
     def start_requests(self):
-        df = pd.read_csv('../../../samples/processed/accidents_cleanV2.csv')
-        df = df[(df.cbml.isna())]
+        df = pd.read_excel('../../../samples/raw/data/Incidentes2014_2020.xlsx')
+        df = df[(df.Cbml.isna())]
         print(df.shape)
         for i, item in df[['radicado','direccion']].iterrows():
             meta= {'address':item['direccion']}
@@ -20,9 +20,20 @@ class GoogleMapsSpiderSpider(scrapy.Spider):
             callback = self.parse)   
 
     def parse(self, response):
-        txt = response.xpath("//script[contains(., 'APP_INITIALIZATION_STATE=')]/text()").extract_first()
+        javascript = ''.join(response.css("script::text").extract()) 
+        vars = javascript.split(';')
+        index = 0
+        for i,var in enumerate(vars): 
+            if 'window.APP_INITIALIZATION_STATE' in var: 
+                index = 0
+        var = vars[index]   
+
+
+
+        # javascript = response.css("script:contains('window.APP_INITIALIZATION_STATE')::text").get()  
+        #txt = response.xpath("//script[contains(., 'APP_INITIALIZATION_STATE=')]/text()").extract_first()
         item = GoogleMapsItem()
-        lon_lat_array = re.findall(",null,null,null,null,null,null,\[null,null,(-?[\d]*\.[\d]*),(-?[\d]*\.[\d]*)\]", txt)[0]
+        lon_lat_array = re.findall(",null,null,null,null,null,null,\[null,null,(-?[\d]*\.[\d]*),(-?[\d]*\.[\d]*)\]", var)[0]
         item['id']=response.meta['id']
         item['address']=response.meta['address']
         item['longitude'] = lon_lat_array[0]

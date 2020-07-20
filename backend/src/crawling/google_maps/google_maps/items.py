@@ -19,3 +19,13 @@ class GoogleMapsItem(scrapy.Item):
     latitude = scrapy.Field()
     longitude = scrapy.Field()
     pass
+
+class PostalCodeItem(scrapy.Item):
+    # define the fields for your item here like:
+    postalCode = scrapy.Field()
+    state = scrapy.Field()
+    city = scrapy.Field()
+    locType = scrapy.Field()
+    boroughs = scrapy.Field()
+    otherBoroughs = scrapy.Field()
+    pass
