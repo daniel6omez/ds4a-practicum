@@ -11,39 +11,22 @@ from datetime import datetime as dt
 import json
 import numpy as np
 import pandas as pd
-
-
-from sqlalchemy import create_engine
- 
-DB_USERNAME = 'postgres@psql-ds4a-prod'
-DB_PASSWORD = 'FliFUDlbO72cq2h9AaFF'
-HOST = 'psql-ds4a-prod.postgres.database.azure.com'
-
-#engine = create_engine('sqlite:///crime.db')
-engine=create_engine(f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{HOST}/ds4a', connect_args={'sslmode':'require'}, max_overflow=20)
-df = pd.read_sql("select * from processed.accidents", engine.connect(), parse_dates=('Date'))
+from db.data import df
 
 
 #############################
 # Load map data
 #############################
-#df = pd.read_csv("Data/accidents_v3.csv", parse_dates=['Date'])
+from urllib.request import urlopen
+import json
+with urlopen('https://ds4a.blob.core.windows.net/ds4a/Barrios.geojson') as response:
+    geojson = json.load(response)
 
-with open('./data/Barrios.geojson', encoding='utf8') as geo:
-    geojson = json.loads(geo.read())
- 
 for i, f in enumerate(geojson["features"]):
     f["id"] = f["properties"]["CODIGO"]
     geojson["features"][i] = f
 
-#Map
-
-
-def update_map(start_date= None, end_date= None):
-    dff=df
-    if start_date != None and end_date != None:
-        dff=df[(df.Date >= start_date) & (df.Date <= end_date)]
-        
+def update_map(dff = df):
     accidents_cn = dff.groupby(["Cbml",	"Borough"])["Radicado"].count().reset_index(name="accidents_count")
     figure6 = px.choropleth_mapbox(accidents_cn,                         #Data
         locations='Cbml',                         #Column containing the identifiers used in the GeoJSON file 
@@ -51,7 +34,7 @@ def update_map(start_date= None, end_date= None):
         geojson=geojson,                      #The GeoJSON file
         #featureidkey = "properties.CODIGO", 
         hover_name="Borough",
-        hover_data={'Cbml':False, 'accidents_count':True },#'sepal_length':':.2f',}
+        hover_data={'Cbml':True, 'accidents_count':True },#'sepal_length':':.2f',}
         zoom=10.5,                                   #Zoom
         mapbox_style="carto-positron",            #Mapbox style, for different maps you need a Mapbox account and a token
         center={"lat": 6.2653382, "lon": -75.6035539}, #Center 0
@@ -62,10 +45,6 @@ def update_map(start_date= None, end_date= None):
     
     figure6.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, width=1000)
     return figure6
-
-    
-    
-
 
 ##############################
 #Map Layout

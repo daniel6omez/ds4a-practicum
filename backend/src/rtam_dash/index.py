@@ -20,6 +20,7 @@ import json
 
 #Recall app
 from app import app, server
+from db.data import df, dff
 
 ###########################################################
 #
@@ -28,21 +29,24 @@ from app import app, server
 ###########################################################
 
 #LOAD THE DIFFERENT FILES
-from modules import sidebar, md_map, heat_maps#, stats
+from modules import md_map, heat_maps
+
+x0 = 'xaxis.range[0]'
+x1 = 'xaxis.range[1]'
+
+months={"Jan":1, "Feb":2, "Mar":3, "Apr":4, "May":5, "June":6, "July":7, "Aug":8, "Sept":9, "Oct":10, "Nov":11, "Dec":12}
+days={"Mon":0,"Tue":1,"Wed":2,"Thu":3,"Fri":4,"Sat":5,"Sun":6}
 
 #PLACE THE COMPONENTS IN THE LAYOUT
 app.layout =html.Div(
     [ 
       md_map.map,
-      heat_maps.heatmaps,
-      #stats.stats,
-      #title.title,
-      sidebar.sidebar,
+      heat_maps.heatmaps
     ],
     className="ds4a-app", #You can also add your own css files by locating them into the assets folder
 )
 
- 
+
     
 ###############################################   
 #
@@ -53,87 +57,61 @@ app.layout =html.Div(
 ###############################################################
 #Load and modify the data that will be used in the app.
 #################################################################
-#df = pd.read_csv('Data/superstore.csv', parse_dates=['Order Date', 'Ship Date'])
-
-#with open('Data/us.json') as geo:
- #   geojson = json.loads(geo.read())
-
-#with open('Data/states.json') as f:
- #   states_dict = json.loads(f.read())
-
-#df['State_abbr'] = df['State'].map(states_dict)
-#df['Order_Month'] = pd.to_datetime(df['Order Date'].map(lambda x: "{}-{}".format(x.year, x.month)))
-
-
 
 #############################################################
 # SCATTER & LINE PLOT : Add sidebar interaction here
 #############################################################
 @app.callback(
-    [Output("MonthDayHeat", "figure"), Output("DayHourHeat", "figure"),Output("LineGraph", "figure")],
-    #[Output("MonthDayHeat", "figure"),Output("Scatter","figure"), Output("Treemap",'figure')],
+    [Output("md_map", "figure"),Output("month_day_heat", "figure"), Output("day_hour_heat", "figure"),Output("line_graph", "figure")],
     [
-        #Input("state_dropdown", "value"),
-        Input("date_picker", "start_date"),
-        Input("date_picker", "end_date")
-    ],
-)
-def update_heat_maps(start_date, end_date):
-    MonthDayHeat = heat_maps.update_month_day_heat(start_date, end_date)
-    DayHourHeat = heat_maps.update_day_hour_heat(start_date, end_date)
-    LineGraph = heat_maps.update_line_graph(start_date, end_date)
-
-    return [MonthDayHeat,DayHourHeat,LineGraph]
-
-
-
-#############################################################
-# TREEMAP PLOT : Add sidebar interaction here
-#############################################################
-
-
-
-#############################################################
-# MAP : Add interactions here
-#############################################################
-
-#MAP date interaction
-@app.callback(
-    Output("md_map", "figure"),
-    [
-        Input("date_picker", "start_date"),
-        Input("date_picker", "end_date")
-    ],
-)
-def update_map(start_date,end_date):
-    return md_map.update_map(start_date,end_date)
-
-
-#MAP click interaction
-
-@app.callback(
-    Output('state_dropdown','value'),
-    [
-        Input('md_map','clickData')
-    ],
-    [
-        State('state_dropdown','value')
+        Input('md_map', 'clickData'),
+        Input('md_map', 'selectedData'),
+        Input('line_graph', 'selectedData'),
+        Input('line_graph', 'relayoutData'),
+        Input("month_day_heat", "clickData")
     ]
-
 )
-def click_saver(clickData,state):
-    if clickData is None:
-        raise PreventUpdate
-    
-    #print(clickData)
-    
-    state.append(clickData['points'][0]['location'])
-    
-    return state
+def update_dashboard(point, points, selected_data, relayout_data, month_day_cd):
+    global dff
+    ctx = dash.callback_context
+    id = ''
+    if ctx.triggered:
+        id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if point is None and points is None and selected_data is None and (relayout_data is None or x0 not in relayout_data) and month_day_cd is None:
+       raise dash.exceptions.PreventUpdate
+
+    if id == 'md_map' and points != None and 'points' in points:
+        cbmls = [point['location'] for point in points['points'] if 'location' in point ]
+        dff =dff[dff.Cbml.isin(cbmls)]
+    elif id == 'md_map' and point != None and 'points' in point and len(point['points']) == 1 and 'location' in point['points'][0]:
+        cbml = point['points'][0]['location']
+        if dff[dff.Cbml != cbml].empty:
+            dff = df
+        else :
+            dff = dff[dff.Cbml==cbml]
+    elif id == 'line_graph' and relayout_data != None and x0 in relayout_data:
+        dff=dff[(dff.Date >= relayout_data[x0]) & (dff.Date <= relayout_data[x1])]
+    elif id == 'line_graph' and selected_data != None and 'range' in selected_data and 'x' in selected_data['range']:
+        dff=dff[(dff.Date >= selected_data['range']['x'][0]) & (dff.Date <= selected_data['range']['x'][1])]
+    elif id == 'month_day_heat' and month_day_cd != None and 'points' in month_day_cd and len(month_day_cd['points']) == 1 and 'x' in month_day_cd['points'][0] and 'y' in month_day_cd['points'][0]:
+        month = months[month_day_cd['points'][0]['x']]
+        day = months[month_day_cd['points'][0]['y']]
+        dff = dff[(dff['Date'].dt.month == month) & (dff['Date'].dt.dayofweek == day)]
+    else :
+        dff = df    
+
+    map_md = md_map.update_map(dff)
+    month_day_heat = heat_maps.update_month_day_heat(dff)
+    day_hour_heat = heat_maps.update_day_hour_heat(dff)
+    line_graph = heat_maps.update_line_graph(dff)   
+    return [map_md,month_day_heat,day_hour_heat,line_graph]
+
+
 
 if __name__ == "__main__":
     # http_server = WSGIServer(('', 8080), app.server)
     # http_server.serve_forever()
     app.run_server()
     #use the bottom option when debbuging
-    # app.run_server(host='localhost',port='8050',debug=True,use_reloader=True)
+    #app.run_server(host='localhost',port='8050',debug=True,use_reloader=True)
