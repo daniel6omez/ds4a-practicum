@@ -33,7 +33,7 @@ def update_dashboard(point, points, selected_data, relayout_data, month_cd, day_
     if ctx.triggered:
         id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-    if point is None and points is None and selected_data is None and (relayout_data is None or x0 not in relayout_data) and month_cd is None and day_cd is None:
+    if point is None and points is None and selected_data is None and (relayout_data is None or (x0 not in relayout_data and 'xaxis.autorange' not in relayout_data)) and month_cd is None and day_cd is None:
        raise PreventUpdate
 
     if id == 'md_map' and points != None and 'points' in points:
@@ -47,6 +47,8 @@ def update_dashboard(point, points, selected_data, relayout_data, month_cd, day_
             dff = dff[dff.Cbml==cbml]
     elif id == 'line_graph' and relayout_data != None and x0 in relayout_data:
         dff=dff[(dff.Date >= relayout_data[x0]) & (dff.Date <= relayout_data[x1])]
+    elif id == 'line_graph' and relayout_data != None and 'xaxis.autorange' in relayout_data and 'yaxis.autorange' in relayout_data and relayout_data['xaxis.autorange'] and relayout_data['yaxis.autorange']:
+            dff=df
     elif id == 'line_graph' and selected_data != None and 'range' in selected_data and 'x' in selected_data['range']:
         dff=dff[(dff.Date >= selected_data['range']['x'][0]) & (dff.Date <= selected_data['range']['x'][1])]
     # elif id == 'month_day_heat' and month_cd != None and 'points' in month_cd and len(month_cd['points']) == 1 and 'x' in month_cd['points'][0] and 'y' in month_cd['points'][0]:

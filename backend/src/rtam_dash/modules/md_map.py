@@ -38,6 +38,6 @@ def update_map(dff = df):
         #colorbar_title = "Conteo accidentes",
         opacity=0.5,                              #Opacity of the map
       )
-    
+    fig.update_layout(clickmode='event+select')
     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
     return fig
