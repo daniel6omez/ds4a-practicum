@@ -51,6 +51,6 @@ def update_map(dff = df):
 ##############################
 map=html.Div([
  #Place the main graph component here:
-  dcc.Graph(figure=update_map(), id='md_map')
-], className="ds4a-body")
+  dcc.Graph(figure=update_map(), id='md_map',style={'height':'50vh'})
+])
     
