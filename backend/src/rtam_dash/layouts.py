@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from modules import md_map, heat_maps, prediction_widget
+from modules import md_map, heat_maps, prediction_widget, regression_pred
 
 main_layout =html.Div(
 [ 
@@ -10,7 +10,8 @@ main_layout =html.Div(
     [        
         dbc.Row([
             html.H5("Select a date to predict"),
-            prediction_widget.date_picker_model
+            prediction_widget.date_picker_model,
+            regression_pred.modal_for_prediction()
         ]),
         dbc.Row([
             dbc.Col(
