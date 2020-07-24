@@ -2,12 +2,16 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from modules import md_map, heat_maps
+from modules import md_map, heat_maps, prediction_widget
 
 main_layout =html.Div(
 [ 
     dcc.Loading(
-    [
+    [        
+        dbc.Row([
+            html.H5("Select a date to predict"),
+            prediction_widget.date_picker_model
+        ]),
         dbc.Row([
             dbc.Col(
                 dcc.Graph(figure=md_map.update_map(), id='md_map'),xl=6, lg=6, md=6, xs=12
