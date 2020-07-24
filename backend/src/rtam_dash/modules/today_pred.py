@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime as dt
 import holidays
 import json
+import os
 
 def prepare_date():
     dt_date = dt.today().date()
@@ -14,13 +15,13 @@ def prepare_date():
     return dt_date.strftime("%Y-%m-%d"), pd.DataFrame([[month, day, isHoliday]], columns=["MonthNum", "WeekDayNum", "IsHoliday"])
 
 def today_pred():    
-    model = sm.load("../model/LR_model.pkl")
+    model = sm.load('/app/model/LR_model.pkl')
     date, df = prepare_date()
     pred = round(model.predict(df)[0])
 
     result = {'date': date, 'prediction':pred}    
 
-    with open('../assets/daily_predict.json', 'w') as fp:
+    with open('/app/assets/daily_predict.json', 'w') as fp:
         json.dump(result, fp)
 
 

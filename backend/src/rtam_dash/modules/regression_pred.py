@@ -2,6 +2,7 @@ from datetime import datetime as dt
 import holidays
 
 import dash_html_components as html
+import os
 
 
 #Dash Bootstrap Components
@@ -12,22 +13,7 @@ import pandas as pd
 
 #######
 #######
-def modal_for_prediction():
-    modal = html.Div([
-                #dbc.Button("Open modal", id="open"),
-                dbc.Modal(
-                    [
-                        dbc.ModalHeader("Drive carefully:"),                        
-                        dbc.ModalBody("Here is the prediction", id="modal_text"),
-                        dbc.ModalFooter(
-                            dbc.Button("Close", id="close", className="ml-auto")
-                        ),
-                    ],
-                    id="modal",
-                ),
-            ], style={'float':'right'})
 
-    return modal
 
 def regression_predict(month, day, isHoliday):
     """
@@ -39,7 +25,7 @@ def regression_predict(month, day, isHoliday):
     """
     
 
-    model = sm.load("model/LR_model.pkl")
+    model = sm.load(os.getcwd()+'/model/LR_model.pkl')
     
     tmp = pd.DataFrame([[month, day, isHoliday]], columns=["MonthNum", "WeekDayNum", "IsHoliday"])
     result = round(model.predict(tmp)[0])

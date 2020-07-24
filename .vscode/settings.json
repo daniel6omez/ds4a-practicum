@@ -1,5 +1,5 @@
 {
 
-    "python.pythonPath": "D:\\installed\\Python\\Python36\\python.exe"
+    "python.pythonPath": ".venv/bin/python"
 
 }
