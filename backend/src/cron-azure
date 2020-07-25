@@ -1,0 +1,3 @@
+@reboot /usr/local/bin/python /app/modules/today_pred.py >> /var/log/cron.log 2>&1
+*/1 * * * * /usr/local/bin/python /app/modules/today_pred.py >> /var/log/cron.log 2>&1
+

@@ -15,12 +15,29 @@ WORKDIR /app
 COPY ./rtam_dash/requirements.txt .
 RUN python -m pip install -r requirements.txt
 
+RUN set -xe \
+    && apt-get update \
+    && apt-get -y install -qq --force-yes cron
 
 COPY ./rtam_dash .
 
+COPY ./cron-azure /etc/cron.d/cron-azure
+
+# Give execution rights on the cron job
+RUN chmod 0744 /etc/cron.d/cron-azure
+
+COPY ./init.sh /usr/local/bin/
+
+RUN chmod u+x /usr/local/bin/init.sh
+
 # Switching to a non-root user, please refer to https://aka.ms/vscode-docker-python-user-rights
-RUN useradd appuser && chown -R appuser /app
-USER appuser
+# RUN useradd appuser && chown -R appuser /app
+# USER appuser
+
+# Apply cron job
+RUN crontab /etc/cron.d/cron-azure
+
+ENTRYPOINT ["init.sh"]
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "-t", "100000", "index:server"]
+#CMD ["gunicorn", "--bind", "0.0.0.0:8080", "-t", "100000", "index:server"]

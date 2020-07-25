@@ -5,7 +5,7 @@ from dash.exceptions import PreventUpdate
 from datetime import datetime as dt
 
 from app import app
-from modules import md_map, heat_maps
+from modules import md_map, heat_maps, regression_pred
 from db.data import df, dff
 
 x0 = 'xaxis.range[0]'
@@ -69,3 +69,23 @@ def update_dashboard(point, points, selected_data, relayout_data, month_cd, day_
     day_hour_heat = heat_maps.update_day_hour_heat(dff)
     line_graph = heat_maps.update_line_graph(dff)   
     return [map_md,month_day_heat,day_hour_heat,line_graph]
+
+
+
+@app.callback(
+    [Output("modal", "is_open"), Output("modal_text", "children")],
+    [Input("close", "n_clicks"), Input("date_picker_model", "date")],
+    [
+        State("modal", "is_open")
+    ],
+)
+def show_incident_modal_prediction(n1, date, is_open):
+    tmp = is_open
+     
+    if tmp is None:
+        tmp = False
+    else:
+        tmp = not is_open
+
+    texto = regression_pred.custom_message(date)
+    return tmp, texto
