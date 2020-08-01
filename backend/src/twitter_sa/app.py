@@ -31,6 +31,23 @@ translator = Translator()
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 #app.title = 'Real-Time Twitter Monitor'
 
+app.meta_tags=[
+    {
+        'name': 'DS4A',
+        'content': 'TWITTER'
+    },
+    {
+        'http-equiv': 'X-UA-Compatible',
+        'content': 'IE=edge'
+    },
+    {
+      'name': 'viewport',
+      'content': 'width=device-width, initial-scale=1.0'
+    }
+]
+
+server = app.server
+
 app.layout = html.Div(children=[
     #html.H2('Real-time Twitter Sentiment Analysis for Topic Tracking', style={'textAlign': 'center'}),
     html.P('(Last updated: {})'.format(today), style={'textAlign': 'right', 'fontSize':15}),
@@ -394,4 +411,4 @@ def update_graph_bottom_live(n):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True,port=8051, host='127.0.0.1')
+    app.run_server()
