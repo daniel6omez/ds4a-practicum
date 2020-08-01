@@ -1,0 +1,3 @@
+@reboot /usr/local/bin/python /app/main.py >> /var/log/cron.log 2>&1
+*/10 * * * * /usr/local/bin/python /app/main.py >> /var/log/cron.log 2>&1
+

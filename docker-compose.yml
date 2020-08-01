@@ -18,12 +18,21 @@ services:
   #   working_dir: /home/ds4a
   #   volumes:
   #     - ./backend/:/home/ds4a/work
-  dash:
-    container_name: dash
+  # dash:
+  #   container_name: dash
+  #   build: 
+  #     context: ./backend/src/
+  #     dockerfile: Dockerfile.rtam
+  #   image: ds4a-rtam:latest
+  #   ports:
+  #     - "8080:8080"
+  #   restart: always
+  dash-twitter:
+    container_name: dash-twitter
     build: 
       context: ./backend/src/
-      dockerfile: Dockerfile.rtam
-    image: ds4a-rtam:latest
+      dockerfile: Dockerfile.twitter
+    image: ds4a-twitter:latest
     ports:
       - "8080:8080"
     restart: always
